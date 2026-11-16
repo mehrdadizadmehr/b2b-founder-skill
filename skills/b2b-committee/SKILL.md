@@ -126,8 +126,9 @@ twice is left out and counted in the results. Never write an answer for an
 account yourself.
 
 Rough budget, so the user can decide: a four-account brief costs a sub-agent
-about 25 to 40k tokens on sonnet; the default run is 4 such calls, `--quick` 2,
-`--full` 10. That fits a personal Claude plan in one sitting. Sub-agents write
+about 70k tokens on sonnet and takes half a minute (measured); the default run
+is 4 such calls, `--quick` 2, `--full` 10. That fits a personal Claude plan in
+one sitting. Sub-agents write
 one file per account into `b2b/committee/answers/`; in the default permission
 mode that is one approval per file, so suggest accept-edits mode (Shift+Tab)
 for the run.

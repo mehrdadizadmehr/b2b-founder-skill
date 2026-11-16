@@ -161,10 +161,10 @@ so that the whole pipeline runs on a Pro plan in one sitting:
 
 | step | sub-agent calls | model | rough tokens |
 | --- | ---: | --- | ---: |
-| `/b2b-board` | 3 | sonnet | 60–100k |
-| `/b2b-committee --quick` | 2 | sonnet | 50–80k |
-| `/b2b-committee` (16 accounts) | 4 | sonnet | 100–160k |
-| `/b2b-committee --full` (40) | 10 | sonnet | 250–400k |
+| `/b2b-board` | 3 | sonnet | 100–150k |
+| `/b2b-committee --quick` | 2 | sonnet | ~145k (measured: 72k per brief, 31 s) |
+| `/b2b-committee` (16 accounts) | 4 | sonnet | ~290k |
+| `/b2b-committee --full` (40) | 10 | sonnet | ~720k |
 | the other eight skills | 0 | your session | a normal conversation each |
 
 Three things make it light. Accounts are dealt 3 to 5 per segment x situation
