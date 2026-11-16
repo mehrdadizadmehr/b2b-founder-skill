@@ -1,0 +1,38 @@
+{
+  "business": "Industrial automation integrator for mid-size factories",
+  "currency": "$",
+  "model": "deal",
+  "unit": "project",
+  "price": 48000,
+  "variable": [
+    {"label": "PLCs, drives, sensors, panels (hardware at cost)", "cost": 21000},
+    {"label": "Subcontracted electrical installation", "cost": 6000},
+    {"label": "Engineering hours billed to the project (contract engineers)", "cost": 7000},
+    {"label": "Travel, freight, warranty reserve", "cost": 1500}
+  ],
+  "fixed_monthly": [
+    {"label": "Two staff automation engineers", "cost": 9000},
+    {"label": "Office, workshop, test bench", "cost": 1800},
+    {"label": "Engineering software licences (PLC, SCADA, CAD)", "cost": 1100},
+    {"label": "Insurance, accounting, certifications upkeep", "cost": 700}
+  ],
+  "sales_marketing_monthly": [
+    {"label": "Founder's selling time (half a salary)", "cost": 3000},
+    {"label": "Site visits, demos, proposals", "cost": 900},
+    {"label": "Industry fair and association membership (spread)", "cost": 600}
+  ],
+  "startup": [
+    {"label": "Test bench, demo panel, tools", "cost": 18000},
+    {"label": "Vendor partner certifications (PLC brand training)", "cost": 7000},
+    {"label": "Vehicle, laptops, software first year", "cost": 15000},
+    {"label": "Legal, insurance deposits, website", "cost": 5000}
+  ],
+  "plan_per_month": 1.5,
+  "ramp_per_month": [0, 0, 0.5, 0.5, 1, 1, 1, 1.5, 1.5, 1.5, 1.5, 1.5],
+  "capacity_per_month": 2,
+  "receivable_days": 60,
+  "inventory_days": 20,
+  "payable_days": 30,
+  "new_customers_per_month": 1,
+  "customer_years": 2.5
+}

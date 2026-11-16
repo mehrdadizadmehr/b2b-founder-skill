@@ -1,0 +1,38 @@
+{
+  "business": "Compostable food packaging maker selling to restaurant chains and food brands",
+  "currency": "$",
+  "model": "manufacturing",
+  "unit": "tonne",
+  "price": 4200,
+  "variable": [
+    {"label": "PLA / bagasse raw material per tonne", "cost": 2300},
+    {"label": "Energy and consumables per tonne", "cost": 260},
+    {"label": "Direct labour per tonne (piece-rate shift)", "cost": 340},
+    {"label": "Freight to customer per tonne", "cost": 180},
+    {"label": "Distributor commission where used (blended)", "cost": 120}
+  ],
+  "fixed_monthly": [
+    {"label": "Factory lease", "cost": 6500},
+    {"label": "Plant manager, QA, maintenance", "cost": 9800},
+    {"label": "Compostability certification upkeep, lab tests", "cost": 900},
+    {"label": "Insurance, utilities base, accounting", "cost": 1800}
+  ],
+  "sales_marketing_monthly": [
+    {"label": "Key-account manager", "cost": 4000},
+    {"label": "Samples, trade shows, sustainability content", "cost": 1800}
+  ],
+  "startup": [
+    {"label": "Thermoforming line and moulds", "cost": 260000},
+    {"label": "Compostability certification (EN 13432 / ASTM D6400)", "cost": 25000},
+    {"label": "Factory fit-out, deposits", "cost": 40000},
+    {"label": "First raw material and trial runs", "cost": 35000}
+  ],
+  "plan_per_month": 60,
+  "ramp_per_month": [0, 5, 10, 18, 25, 32, 40, 45, 50, 55, 60, 60],
+  "capacity_per_month": 80,
+  "receivable_days": 60,
+  "inventory_days": 40,
+  "payable_days": 45,
+  "new_customers_per_month": 2,
+  "customer_years": 4
+}

@@ -1,0 +1,16 @@
+{
+  "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
+  "name": "b2b-founder-skill",
+  "description": "The B2B Founder skill pack for Claude",
+  "owner": {
+    "name": "Mehrdad Izadmehr"
+  },
+  "plugins": [
+    {
+      "name": "b2b-founder-skill",
+      "description": "Eleven Claude skills that test a B2B business before you launch it: a board, a competitor scout, a panel of 40 simulated buying committees, pricing, the offer, a CFO for deal, distribution and manufacturing models, go-to-market, brand, operations, a launch plan and the business plan.",
+      "source": "./",
+      "category": "productivity"
+    }
+  ]
+}

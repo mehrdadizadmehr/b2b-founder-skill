@@ -1,0 +1,20 @@
+{
+  "name": "b2b-founder-skill",
+  "description": "Eleven Claude skills that test a B2B business before you launch it: a board applying published positioning, chasm and monopoly frameworks, a competitor scout, a panel of 40 simulated buying committees, pricing, the offer, a CFO for deal, distribution and manufacturing models, go-to-market, brand, operations, launch and the business plan with a computed verdict. MIT.",
+  "version": "1.0.0",
+  "author": {
+    "name": "Mehrdad Izadmehr"
+  },
+  "license": "MIT",
+  "keywords": [
+    "claude-code",
+    "claude-skills",
+    "b2b",
+    "startup",
+    "business-plan",
+    "unit-economics",
+    "buying-committee",
+    "market-validation",
+    "subagents"
+  ]
+}

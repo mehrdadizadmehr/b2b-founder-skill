@@ -1,0 +1,44 @@
+{
+  "business": "Online distributor of electronic components for small manufacturers",
+  "currency": "$",
+  "target": "small and mid-size electronics manufacturers and repair shops that buy components in low volumes, today from a big catalogue distributor or a local wholesaler",
+  "segments": [
+    {"name": "Contract electronics manufacturer (small PCB assembly shop)", "share": 0.4, "employees": [10, 80], "annual_spend": [60000, 400000],
+     "how": "Buys hundreds of line items a month against customer BOMs; a missing part stops a production line."},
+    {"name": "Product company with its own hardware (IoT, instruments)", "share": 0.3, "employees": [15, 150], "annual_spend": [40000, 300000],
+     "how": "Engineers pick parts; procurement orders them; quality cares about traceability and counterfeits."},
+    {"name": "Industrial repair and maintenance shop", "share": 0.2, "employees": [3, 30], "annual_spend": [8000, 60000],
+     "how": "Urgent one-off needs, pays by card, cares about same-day shipping more than price."},
+    {"name": "University lab or R&D team", "share": 0.1, "employees": [5, 40], "annual_spend": [5000, 30000],
+     "how": "Small orders, slow approval, needs an invoice and a purchase-order process."}
+  ],
+  "roles": [
+    {"name": "Procurement manager", "cares": "unit price, payment terms (net 30 or better), one supplier instead of five, no surprises on duties and freight"},
+    {"name": "Design or production engineer", "cares": "the exact part number in stock, datasheets and alternates, lead time they can trust"},
+    {"name": "Quality manager", "cares": "genuine parts with traceable manufacturer sourcing, certificates of conformance, a return process"},
+    {"name": "Owner or finance lead", "cares": "total cost, credit terms, the risk of a new supplier failing mid-project"}
+  ],
+  "situations": [
+    {"name": "Loyal to a big catalogue distributor", "share": 0.4, "how": "Everything works, prices are high, shipping from abroad takes a week or more."},
+    {"name": "Burned by a counterfeit or a late shipment recently", "share": 0.2, "how": "Actively looking, but trust is the whole question."},
+    {"name": "Buys from several local wholesalers", "share": 0.25, "how": "Cheap but chaotic: no stock visibility, cash payments, no paperwork."},
+    {"name": "New line starting, no supplier chosen yet", "share": 0.15, "how": "Open to anyone who can quote a full BOM quickly."}
+  ],
+  "objections": [
+    "How do we know the parts are genuine and not re-marked?",
+    "Our current distributor gives us net 45; will you?",
+    "If it's not in stock today, why would we wait for you instead of ordering from the catalogue giant?",
+    "Who are you? We have never heard of you and a wrong part costs us a production day.",
+    "Your prices are only a bit lower and switching means new vendor paperwork and QA approval.",
+    "Can you quote a 200-line BOM in a day, or is this a webshop for hobbyists?",
+    "What happens when a part is end-of-life? Do you suggest alternates?",
+    "Do you handle import duties, or do we get a customs bill later?"
+  ],
+  "triggers": [
+    "a line stop last month because a part arrived late",
+    "the finance lead asked procurement to cut component spend by 10%",
+    "a new product going into production this quarter",
+    "the incumbent distributor raised minimum order values"
+  ],
+  "regions": ["the capital region", "an industrial town two hours away", "a free-trade zone"]
+}

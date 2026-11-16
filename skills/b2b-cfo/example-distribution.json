@@ -1,0 +1,32 @@
+{
+  "business": "Online distributor of electronic components for small manufacturers",
+  "currency": "$",
+  "model": "distribution",
+  "unit": "order",
+  "price": 850,
+  "gross_margin_pct": 0.22,
+  "fixed_monthly": [
+    {"label": "Warehouse and office rent", "cost": 2400},
+    {"label": "Two warehouse and support staff", "cost": 4200},
+    {"label": "E-commerce platform, ERP, payments software", "cost": 900},
+    {"label": "Insurance, accounting, bank fees", "cost": 600}
+  ],
+  "sales_marketing_monthly": [
+    {"label": "One technical sales rep", "cost": 3200},
+    {"label": "Search ads and catalogue listings", "cost": 2500},
+    {"label": "Trade shows (annual cost spread monthly)", "cost": 800}
+  ],
+  "startup": [
+    {"label": "First inventory (fast-moving lines)", "cost": 60000},
+    {"label": "Website, ERP setup, product data", "cost": 12000},
+    {"label": "Company registration, import licences, legal", "cost": 4000},
+    {"label": "Racking, packing station, labels", "cost": 6000}
+  ],
+  "plan_per_month": 180,
+  "ramp_per_month": [15, 30, 50, 70, 90, 110, 130, 145, 160, 170, 180, 180],
+  "receivable_days": 45,
+  "inventory_days": 75,
+  "payable_days": 30,
+  "new_customers_per_month": 12,
+  "customer_years": 3
+}
