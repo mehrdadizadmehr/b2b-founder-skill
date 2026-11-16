@@ -10,6 +10,68 @@ industrial services and B2B software. Free, MIT, no signup, no API key.
 `skills/b2b-pricing` `skills/b2b-offer` `skills/b2b-cfo` `skills/b2b-gtm`
 `skills/b2b-brand` `skills/b2b-ops` `skills/b2b-launch` `skills/b2b-plan`
 
+## In plain words
+
+Eleven colleagues who try your idea before you spend real money. They live in
+Claude Code and write everything into a `b2b/` folder in your project, so each
+one reads what the others wrote. Run them in this order.
+
+1. **The board** (`/b2b-board`). You describe the idea in a few lines. Three
+   board members, each using one well-known framework (positioning, crossing
+   the chasm, monopoly), score it, say what could kill it and vote: fund, fund
+   with conditions, or pass.
+2. **Competitors** (`/b2b-competitors`). Finds who already sells to these
+   customers, at what price, on what payment terms and lead times, and what
+   their customers complain about. Every claim has a link.
+3. **The buying committee** (`/b2b-committee`). The heart of the pack. You
+   describe your ideal customer: what kind of companies, how big, how much they
+   spend a year on this, who they buy from now, who sits in their purchase
+   meeting and what objections they raise. The tool deals 16 imaginary
+   companies from that profile. Claude sends one small helper per four
+   companies to act out the purchase meeting: procurement, the engineer,
+   quality and finance argue and decide. For each company you get buy, pilot or
+   pass, how much a year, how many months the sale takes, who blocked it and
+   what price it would accept. Then a table: which segment buys most, which
+   seat blocks most, why they pass and what would change their mind.
+4. **Pricing** (`/b2b-pricing`). Turns the committees' price answers into an
+   acceptance curve: the fair price, the ceiling above which 40% walk away,
+   the discount procurement expects, list price versus net price. Set against
+   competitors and your cost floor.
+5. **The offer** (`/b2b-offer`). Builds a package every seat can say yes to:
+   a paid pilot, certificates, payment terms, a guarantee, references. Re-tests
+   it on a quick panel.
+6. **The CFO** (`/b2b-cfo`). Takes your numbers and works out what each sale
+   leaves, break-even, year 1 month by month, cost to win a customer against
+   what it returns, and above all **working capital**: if customers pay in 45
+   days and you hold 75 days of stock, how much cash is locked up. In the
+   example that ships with the pack it is five times the startup spend.
+7. **Go-to-market** (`/b2b-gtm`). The first segment to win, the sales channel,
+   how to build the target-account list, a dated 90-day plan, ten opening
+   messages and the most you can afford to spend winning a customer.
+8. **Brand** (`/b2b-brand`). Name candidates with trademark and domain checks,
+   and a voice both the engineer and procurement trust.
+9. **Operations** (`/b2b-ops`). Order to cash, suppliers and their terms, stock
+   or capacity, quality and traceability, licences, people, risks. Feeds real
+   costs back to the CFO.
+10. **Launch** (`/b2b-launch`). First a test with real customers: a few paid
+    pilots or signed quotes. Then the countdown and the first 90 days.
+11. **The plan** (`/b2b-plan`). Compiles everything into one document and gives
+    a verdict computed from the numbers, never written by hand: **Viable**,
+    **Not yet** or **Incomplete**. Six checks, including a panel win rate above
+    20% and customer-acquisition payback under 18 months.
+
+**Cost.** Only the board and the committee send out helpers: 7 calls in all, on
+the cheaper model. The rest is an ordinary conversation. The whole path fits a
+Pro plan in one sitting.
+
+**What it is not.** Real customers. Simulated committees are good at finding
+objections, blocking seats and the price band; but models are polite, so read
+the win rate as a ceiling and confirm the big decisions with five real calls.
+That is why the launch skill starts with exactly that test.
+
+**Simplest start:** `/b2b-board` with one paragraph of idea, then
+`/b2b-committee --quick`. If it does not survive those two, do not run the rest.
+
 ## What changed from the consumer version
 
 | consumer founder-skill | this pack | why |
