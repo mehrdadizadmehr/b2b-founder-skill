@@ -27,7 +27,7 @@ industrial services and B2B software. Free, MIT, no signup, no API key.
 As a plugin, in Claude Code:
 
 ```
-/plugin marketplace add <your-github-user>/b2b-founder-skill
+/plugin marketplace add mehrdadizadmehr/b2b-founder-skill
 /plugin install b2b-founder-skill@b2b-founder-skill
 ```
 
