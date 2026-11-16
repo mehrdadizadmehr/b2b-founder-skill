@@ -9,15 +9,21 @@ it out the way a real purchase meeting does, and files one verdict: buy, pilot
 or pass, with the expected annual value, the sales cycle, who blocked, and the
 price the committee would accept.
 
-    python3 committee.py init --customer b2b/customer.json --pitch b2b/pitch.md [--n 40] [--seed 7]
-    python3 committee.py prompts [--wave 10]   # one brief per account still to run, in waves
+    python3 committee.py init --customer b2b/customer.json --pitch b2b/pitch.md [--n 16] [--seed 7]
+    python3 committee.py prompts [--batch 4] [--wave 8]   # briefs for the accounts still to run, in waves
     python3 committee.py check                 # which answers are missing or broken
     python3 committee.py save A003 < reply.txt # file an answer a sub-agent printed instead of writing
     python3 committee.py tally [--out b2b/committee/results.md]
     python3 committee.py status
 
 State lives in b2b/committee/ (--dir to change it): panel.json, accounts.json,
-briefs/<id>.md, answers/<id>.json, results.md, results.json.
+briefs/<id>.md (or briefs/B01.md for a batch of accounts), answers/<id>.json,
+results.md, results.json.
+
+Cost: one sub-agent per account is the most independent run; --batch 4 puts four
+accounts in one brief so one sub-agent holds four meetings in turn, which cuts the
+calls and the repeated pitch by about four. The default panel is 16 accounts
+(3 to 5 per segment x situation that matters), sized for a personal Claude plan.
 
 The tool never answers for an account. Every number in results.md is counted
 from the answer files the sub-agents wrote. Simulated committees are a fast,
@@ -37,7 +43,8 @@ REASONS = ["price", "incumbent", "trust", "quality", "lead_time", "compliance",
 OUTCOMES = ["buy", "pilot", "pass"]
 STANCES = ["for", "against", "neutral"]
 ANSWER_FIELDS = {"id", "outcome", "reason_code", "reason"}
-WAVE = 10
+WAVE = 8
+BATCH = 1
 
 
 class PanelError(Exception):
@@ -84,7 +91,7 @@ def _round_sig(v, digits=2):
     return int(round(v / mag) * mag)
 
 
-def deal(customer, n=40, seed=7):
+def deal(customer, n=16, seed=7):
     """Deal n account cards. Same customer + n + seed = the same cards, every time."""
     validate_customer(customer)
     if n < 1:
@@ -138,7 +145,7 @@ def _write_json(path, obj):
         fh.write("\n")
 
 
-def init(d, customer_path, pitch_path, n=40, seed=None):
+def init(d, customer_path, pitch_path, n=16, seed=None):
     try:
         customer = _read_json(customer_path)
     except FileNotFoundError:
@@ -168,17 +175,13 @@ def load_state(d):
 
 
 # ── briefs ──────────────────────────────────────────────────────────────────────
-BRIEF = """You are the buying committee of one company on a simulated B2B panel. A founder wants to know, before spending a sales cycle, whether companies like yours would buy. Your answer is only useful if it is honest: most vendors never get past procurement, and a polite "send us a proposal" is worse than a clear no.
-
-=== THE ACCOUNT ===
-A {segment} with about {employees} staff{region_line}. {segment_how}
+ACCOUNT = """A {segment} with about {employees} staff{region_line}. {segment_how}
 It spends about {currency}{annual_spend:,} a year on this category today.
 Situation: {situation}. {situation_how}
 {trigger_line}The first thing the committee says when a new vendor like this shows up: "{objection}"
-It is one of these companies: {target}.
-=== END ===
+It is one of these companies: {target}."""
 
-=== THE COMMITTEE (play every seat) ===
+SHARED = """=== THE COMMITTEE (play every seat) ===
 {roles}
 === END ===
 
@@ -186,10 +189,9 @@ It is one of these companies: {target}.
 {pitch}
 === END ===
 
-Hold the purchase meeting. Each seat speaks from what it cares about, with this company's budget, incumbent supplier, risk appetite and procurement rules. Do not be agreeable. Do not invent facts about the vendor beyond what is written above; if something you would need to know is missing (certifications, references, lead time, payment terms), that is an objection, not a guess. Decide as the committee would: "buy" means a purchase order or contract within a normal sales cycle; "pilot" means a small paid trial or a sample order first; "pass" means no.
+Hold the purchase meeting. Each seat speaks from what it cares about, with this company's budget, incumbent supplier, risk appetite and procurement rules. Do not be agreeable. Do not invent facts about the vendor beyond what is written above; if something you would need to know is missing (certifications, references, lead time, payment terms), that is an objection, not a guess. Decide as the committee would: "buy" means a purchase order or contract within a normal sales cycle; "pilot" means a small paid trial or a sample order first; "pass" means no."""
 
-Create the file {out} with your file-writing tool (do not just print the answer in your reply) containing ONLY this JSON, no markdown fence, nothing else:
-{{
+ANSWER = """{{
   "id": "{id}",
   "outcome": "buy" or "pilot" or "pass",
   "annual_value": the expected purchase from this vendor in the first 12 months in {currency} (0 if pass; a pilot is small),
@@ -203,7 +205,30 @@ Create the file {out} with your file-writing tool (do not just print the answer 
   "price_acceptable": the price (same unit as the pitch) the committee would accept as fair (a number),
   "price_walk_away": the price above which it would not consider the vendor at all (a number),
   "discount_expected_pct": the discount in percent procurement would push for before signing (a number, 0 if none)
-}}
+}}"""
+
+BRIEF = """You are the buying committee of one company on a simulated B2B panel. A founder wants to know, before spending a sales cycle, whether companies like yours would buy. Your answer is only useful if it is honest: most vendors never get past procurement, and a polite "send us a proposal" is worse than a clear no.
+
+=== THE ACCOUNT ===
+{account}
+=== END ===
+
+{shared}
+
+Create the file {out} with your file-writing tool (do not just print the answer in your reply) containing ONLY this JSON, no markdown fence, nothing else:
+{answer}
+"""
+
+BATCH_BRIEF = """You are playing the buying committees of {k} DIFFERENT companies on a simulated B2B panel, one purchase meeting at a time. A founder wants to know, before spending a sales cycle, whether companies like these would buy. Your answers are only useful if they are honest: most vendors never get past procurement, and a polite "send us a proposal" is worse than a clear no.
+
+The companies share nothing but the offer they are shown. Hold each meeting fresh, from that company's own situation; do not let one verdict colour the next, and do not spread the outcomes for variety. If four companies would all pass, all four pass.
+
+{shared}
+
+{accounts}
+
+For EACH account above, create its file with your file-writing tool (do not just print the answers in your reply) containing ONLY this JSON, with that account's id, no markdown fence, nothing else:
+{answer}
 """
 
 
@@ -211,26 +236,56 @@ def _roles_text(roles):
     return "\n".join("- %s: cares about %s." % (r["name"], r["cares"]) for r in roles)
 
 
-def write_briefs(d, wave=WAVE):
+def _card_text(c, cust, cur):
+    return ACCOUNT.format(
+        target=cust["target"], currency=cur,
+        region_line=(" in %s" % c["region"]) if c.get("region") else "",
+        trigger_line=("What started the search: %s.\n" % c["trigger"]) if c.get("trigger") else "",
+        **c)
+
+
+def write_briefs(d, wave=WAVE, batch=BATCH):
+    """Write a brief for every account without a valid answer.
+
+    batch=1: one brief per account (briefs/<id>.md), the most independent run.
+    batch=k: k accounts per brief (briefs/B01.md...), one sub-agent plays them in turn.
+    Returns waves of (label, brief path); a batch label is "B01:A001+A002+...".
+    """
+    if batch < 1:
+        raise PanelError("--batch must be at least 1")
     state, cards = load_state(d)
     cust = state["customer"]
     cur = cust.get("currency", "$")
+    shared = SHARED.format(roles=_roles_text(cust["roles"]), pitch=state["pitch"])
+    committee_json = ", ".join('"%s": "for" or "against" or "neutral"' % r["name"] for r in cust["roles"])
+    reasons = " / ".join(REASONS)
+    pending = [c for c in cards if _answer_ok(_path(d, "answers", c["id"] + ".json"), c["id"], cust["roles"]) is not None]
     todo = []
-    for c in cards:
-        out = _path(d, "answers", c["id"] + ".json")
-        if _answer_ok(out, c["id"], cust["roles"]) is None:
-            continue
-        brief = BRIEF.format(
-            pitch=state["pitch"], target=cust["target"], out=os.path.abspath(out), currency=cur,
-            region_line=(" in %s" % c["region"]) if c.get("region") else "",
-            trigger_line=("What started the search: %s.\n" % c["trigger"]) if c.get("trigger") else "",
-            roles=_roles_text(cust["roles"]),
-            committee_json=", ".join('"%s": "for" or "against" or "neutral"' % r["name"] for r in cust["roles"]),
-            reasons=" / ".join(REASONS), **c)
-        bp = _path(d, "briefs", c["id"] + ".md")
-        with open(bp, "w", encoding="utf-8") as fh:
-            fh.write(brief)
-        todo.append((c["id"], bp))
+    if batch == 1:
+        for c in pending:
+            out = os.path.abspath(_path(d, "answers", c["id"] + ".json"))
+            brief = BRIEF.format(account=_card_text(c, cust, cur), shared=shared, out=out,
+                                 answer=ANSWER.format(id=c["id"], currency=cur, reasons=reasons, committee_json=committee_json))
+            bp = _path(d, "briefs", c["id"] + ".md")
+            with open(bp, "w", encoding="utf-8") as fh:
+                fh.write(brief)
+            todo.append((c["id"], bp))
+    else:
+        groups = [pending[i:i + batch] for i in range(0, len(pending), batch)]
+        for g_no, group in enumerate(groups, 1):
+            blocks = []
+            for k, c in enumerate(group, 1):
+                out = os.path.abspath(_path(d, "answers", c["id"] + ".json"))
+                blocks.append("=== ACCOUNT %d of %d: id %s, write %s ===\n%s\n=== END ===" % (
+                    k, len(group), c["id"], out, _card_text(c, cust, cur)))
+            brief = BATCH_BRIEF.format(
+                k=len(group), shared=shared, accounts="\n\n".join(blocks),
+                answer=ANSWER.format(id="the account's id", currency=cur, reasons=reasons, committee_json=committee_json))
+            label = "B%02d" % g_no
+            bp = _path(d, "briefs", label + ".md")
+            with open(bp, "w", encoding="utf-8") as fh:
+                fh.write(brief)
+            todo.append(("%s:%s" % (label, "+".join(c["id"] for c in group)), bp))
     return [todo[i:i + wave] for i in range(0, len(todo), wave)]
 
 
@@ -458,10 +513,11 @@ def main(argv=None):
     i = sub.add_parser("init")
     i.add_argument("--customer", required=True)
     i.add_argument("--pitch", required=True)
-    i.add_argument("--n", type=int, default=40)
+    i.add_argument("--n", type=int, default=16)
     i.add_argument("--seed", type=int)
     p = sub.add_parser("prompts")
     p.add_argument("--wave", type=int, default=WAVE)
+    p.add_argument("--batch", type=int, default=BATCH, help="accounts per brief (one sub-agent plays them in turn)")
     sub.add_parser("check")
     sv = sub.add_parser("save")
     sv.add_argument("id")
@@ -475,12 +531,12 @@ def main(argv=None):
             st, _ = load_state(a.dir)
             print("dealt %d accounts (seed %s) into %s. Next: committee.py prompts" % (len(cards), st["seed"], a.dir))
         elif a.cmd == "prompts":
-            waves = write_briefs(a.dir, a.wave)
+            waves = write_briefs(a.dir, a.wave, a.batch)
             n = sum(len(w) for w in waves)
             if not n:
                 print("every account has a valid answer. Next: committee.py tally")
             else:
-                print("%d briefs in %d waves of up to %d. Launch one wave at a time:" % (n, len(waves), a.wave))
+                print("%d briefs in %d waves of up to %d (%d accounts per brief). Launch one wave at a time:" % (n, len(waves), a.wave, a.batch))
                 for k, w in enumerate(waves, 1):
                     print("wave %d: %s" % (k, " ".join("%s=%s" % job for job in w)))
         elif a.cmd == "check":

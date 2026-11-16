@@ -71,6 +71,25 @@ class Lifecycle(unittest.TestCase):
         self.assertIn('"outcome": "buy" or "pilot" or "pass"', text)
         self.assertIn(os.path.abspath(os.path.join(self.d, "answers", "A001.json")), text)
 
+    def test_batch_briefs_hold_several_accounts(self):
+        waves = cm.write_briefs(self.d, wave=8, batch=4)
+        self.assertEqual([len(w) for w in waves], [3])
+        labels = [lab for lab, _ in waves[0]]
+        self.assertEqual(labels[0], "B01:A001+A002+A003+A004")
+        self.assertEqual(labels[-1], "B03:A009+A010")
+        with open(waves[0][0][1], encoding="utf-8") as fh:
+            text = fh.read()
+        self.assertEqual(text.count("=== ACCOUNT "), 4)
+        self.assertEqual(text.count("12,000 line items"), 1)  # the pitch is sent once
+        for i in range(1, 5):
+            self.assertIn(os.path.abspath(os.path.join(self.d, "answers", "A00%d.json" % i)), text)
+        self.assertIn('"id": "the account\'s id"', text)
+        with self.assertRaises(cm.PanelError):
+            cm.write_briefs(self.d, batch=0)
+
+    def test_default_panel_is_sixteen(self):
+        self.assertEqual(len(cm.deal(cm._read_json(CUSTOMER))), 16)
+
     def _write(self, card, **kw):
         cm._write_json(os.path.join(self.d, "answers", card["id"] + ".json"), answer(card, **kw))
 

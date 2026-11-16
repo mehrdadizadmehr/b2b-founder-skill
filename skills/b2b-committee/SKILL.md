@@ -1,27 +1,33 @@
 ---
 name: b2b-committee
 description: >-
-  The buying-committee panel. Deals a swarm of simulated ACCOUNTS (default 40,
-  --quick for 12) from the user's ideal customer profile, each a company with a
+  The buying-committee panel. Deals a panel of simulated ACCOUNTS (default 16,
+  --quick for 8, --full for 40) from the user's ideal customer profile, each a company with a
   size, a category spend, a current supplier situation and an objection, and a
   buying committee inside it (procurement, engineering, quality, finance...).
-  One sub-agent plays the whole committee of one account, holds the purchase
+  A sub-agent plays the whole committee of an account (four accounts per
+  sub-agent by default, so a run is four cheap calls), holds the purchase
   meeting on the same pitch, and files buy, pilot or pass with the expected
   annual value, the sales cycle, who blocked and the price it would accept.
   Tallies win rate by segment and situation, the blocking seats, the objections
   in the committee's words and the price band for b2b-pricing. Use when the user
   says "would companies buy this", "test it on customers", "run the panel",
   "simulate buyers", "who is my customer", "validate demand", or "ICP".
-argument-hint: "[--n 40 | --quick] [--seed S]"
+argument-hint: "[--quick | --full | --n N] [--batch K] [--seed S]"
 ---
 
 # b2b-committee
 
 The part that replaces guessing. A B2B sale is won or lost in a meeting the
 vendor never attends: procurement, the engineer, quality and the budget owner
-arguing about you. This skill runs that meeting forty times, in forty
-different companies drawn from your ideal customer profile. You are the
-moderator. You never answer for an account.
+arguing about you. This skill runs that meeting in sixteen different
+companies drawn from your ideal customer profile (eight for a first look, forty
+for a full run). You are the moderator. You never answer for an account.
+
+It is sized for a personal Claude plan. A B2B market is small and its variety
+lives inside the account, not between accounts, so more committees stop
+teaching you anything after about 3 to 5 per segment x situation that matters.
+Spend the budget on a truer customer profile instead.
 
 What the user typed after `/b2b-committee`: `$ARGUMENTS`
 
@@ -68,24 +74,44 @@ certifications held, warranty, how to order. Four to eight plain lines, no
 superlatives, nothing the business cannot deliver on day one. Every account
 sees exactly this.
 
-## Step 3: deal and run
+## Step 3: size the panel
+
+Count the segments and situations in `b2b/customer.json` that the user cares
+about and allow 3 to 5 accounts for each pair that matters; the dealing keeps
+the shares, so rare pairs get one or two and common ones more. In practice:
+
+| mode | accounts | sub-agents (batch 4) | when |
+| --- | --- | --- | --- |
+| `--quick` | 8 | 2 | an idea you are only thinking about |
+| default | 16 | 4 | a real profile, first serious read |
+| `--full` | 40 | 10 (or 40 at `--batch 1`) | you have budget and want the segment table dense |
+
+Tell the user the size and the number of sub-agent calls in one line before you
+deal; they may change it with `--n`.
+
+## Step 4: deal and run
 
 ```bash
-PANEL init --customer b2b/customer.json --pitch b2b/pitch.md --n 40
-PANEL prompts
+PANEL init --customer b2b/customer.json --pitch b2b/pitch.md --n 16
+PANEL prompts --batch 4
 ```
 
 `init` deals the account cards (same seed, same accounts; the seed is recorded).
-`prompts` writes one brief per account and lists them in waves of 10. For each
-wave, send ONE message with one Agent tool call per account in that wave (the
-Agent tool is called Task in older Claude Code versions):
+`prompts --batch 4` writes one brief per four accounts and lists them in waves
+of 8. One sub-agent holds the four meetings in turn and writes four answer files;
+the pitch and the committee are sent once instead of four times, which is where
+the saving comes from. `--batch 1` gives every account its own sub-agent: more
+independent, about four times the calls; use it for `--full` when the budget
+allows. For each wave, send ONE message with one Agent tool call per brief in
+that wave (the Agent tool is called Task in older Claude Code versions):
 
 - `subagent_type`: `general-purpose`
-- `description`: `committee <id>`
+- `model`: `sonnet` (a committee meeting does not need the largest model; this
+  is the other half of the saving; the user can say otherwise)
+- `description`: `committee <label>`
 - `prompt`: `Read <brief path> and follow it exactly. It is your whole brief.`
 
-Wait for the whole wave before the next one. Claude Code runs about 10 tool
-calls at once by default, so 40 accounts is 4 waves. After the last wave:
+Wait for the whole wave before the next one. After the last wave:
 
 ```bash
 PANEL check      # lists missing or broken answers
@@ -99,18 +125,24 @@ happens), file its own reply with `PANEL save <id>` and the reply on stdin;
 twice is left out and counted in the results. Never write an answer for an
 account yourself.
 
-Before a 40-account run, tell the user it is 40 sub-agent calls, each longer
-than a consumer answer because it plays a whole committee, and suggest `--quick`
-(12 accounts) for a first look. Sub-agents write one file each into
-`b2b/committee/answers/`; in the default permission mode that is one approval
-per file, so suggest accept-edits mode (Shift+Tab) for the run.
+Rough budget, so the user can decide: a four-account brief costs a sub-agent
+about 25 to 40k tokens on sonnet; the default run is 4 such calls, `--quick` 2,
+`--full` 10. That fits a personal Claude plan in one sitting. Sub-agents write
+one file per account into `b2b/committee/answers/`; in the default permission
+mode that is one approval per file, so suggest accept-edits mode (Shift+Tab)
+for the run.
 
-## Step 4: read it to the user
+If the Agent tool is not available at all (plain chat, no Claude Code), run the
+briefs yourself one at a time in the conversation and file each answer with
+`PANEL save <id>`. Say plainly that the answers are then less independent,
+because the moderator and the committee are the same model in the same thread.
+
+## Step 5: read it to the user
 
 `PANEL tally` writes `b2b/committee/results.md` and `results.json`. Give the
 user:
 
-1. The headline: "9 buy · 7 pilot · 24 pass", the win rate and the engaged rate.
+1. The headline: "4 buy · 3 pilot · 9 pass", the win rate and the engaged rate.
 2. What an account is worth: mean year-1 value of a buyer, share of its
    category spend, median sales cycle, the discount procurement expects.
 3. Who buys and who doesn't: the segment and situation rows that differ most.
@@ -134,8 +166,8 @@ testimonials.
 
 ## The brief every account gets
 
-`committee.py` fills the card into a fixed template (see `BRIEF` in the
-script): the account (segment, size, spend, situation, trigger, region, the
+`committee.py` fills the card into a fixed template (see `BRIEF` and
+`BATCH_BRIEF` in the script): the account (segment, size, spend, situation, trigger, region, the
 first objection), every committee seat and what it cares about, the pitch word
 for word, an instruction to hold the meeting honestly and not to invent facts
 about the vendor, and the exact JSON to write: outcome, annual value, sales

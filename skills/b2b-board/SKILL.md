@@ -64,11 +64,17 @@ must stand on its own. Do not add your own opinion of the idea to it.
 ## Step 2: convene
 
 Launch three sub-agents in ONE message (Agent tool, `subagent_type:
-general-purpose`, one per member), each told: `Read b2b/board/brief.md and
+general-purpose`, `model: sonnet`, one per member; a board memo is short and
+does not need the largest model, and three cheap calls keep this within a
+personal Claude plan), each told: `Read b2b/board/brief.md and
 b2b-board's lenses.md (path below), apply ONLY the <lens> lens, and write your
 memo to b2b/board/<lens>.md.` The lens file is `lenses.md` in this skill's
 folder (`${CLAUDE_SKILL_DIR}/lenses.md`; if that path is not expanded, use the
 base directory Claude Code printed for this skill).
+
+If the Agent tool is not available (plain chat), write the three memos
+yourself, one lens at a time, each in a fresh pass over the brief, and say so;
+the disagreements will be milder than with three separate readers.
 
 Each memo, in this shape:
 
@@ -111,8 +117,8 @@ its job.
 
 `b2b/idea.md`, `b2b/board/` (brief and three memos), `b2b/board.md`. Then say
 the vote in one line and suggest the next step: `/b2b-competitors` to see who
-already sells to these accounts, or `/b2b-committee` to put it in front of 40
-simulated buying committees.
+already sells to these accounts, or `/b2b-committee` to put it in front of
+sixteen simulated buying committees.
 
 ## Where the pack goes next
 

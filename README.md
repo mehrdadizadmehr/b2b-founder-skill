@@ -14,7 +14,7 @@ industrial services and B2B software. Free, MIT, no signup, no API key.
 
 | consumer founder-skill | this pack | why |
 | --- | --- | --- |
-| 100 simulated buyers, one person each | 40 simulated **accounts**, each a company with a **buying committee** (procurement, engineering, quality, finance...) played by one sub-agent | a B2B sale is decided in a meeting the vendor never attends |
+| 100 simulated buyers, one person each, 100 sub-agent calls | 16 simulated **accounts** (8 quick, 40 full), each a company with a **buying committee** (procurement, engineering, quality, finance...), four accounts per sub-agent, so **4 calls** | a B2B sale is decided in a meeting the vendor never attends, and a B2B market is small: variety lives inside the account |
 | buy / pass | **buy / pilot / pass**, with expected annual value, sales cycle, the blocking seat and each seat's stance | pilots and blockers are where B2B deals live |
 | Van Westendorp price sensitivity | **fair price, walk-away price, expected discount** → acceptance curve, ceiling, list vs net price, terms pricing | committees negotiate; consumers do not |
 | cups per day | **three models**: deal, distribution, manufacturing, with **working capital** (receivable, inventory, payable days), **CAC, LTV, CAC payback** | B2B businesses die of payment terms and sales cost, not of margin |
@@ -51,7 +51,7 @@ network.
 | --- | --- | --- |
 | `/b2b-board` | Board of Directors | Three board members, each a sub-agent applying one published framework (Positioning from *Obviously Awesome*, Chasm from *Crossing the Chasm*, Monopoly from *Zero to One*), score the idea, name what would kill it and vote. |
 | `/b2b-competitors` | Competitor Scout | Maps who already sells to the target accounts: direct, indirect, in-house and do-nothing, with price signals, terms, lead times, certifications, channel and what customers complain about, every fact linked. Writes the competitor price file. |
-| `/b2b-committee` | Buying-Committee Panel | Deals 40 accounts from your ideal customer profile, each with a committee inside; one sub-agent per account holds the purchase meeting and files buy / pilot / pass, annual value, sales cycle, who blocked and the price it would accept. |
+| `/b2b-committee` | Buying-Committee Panel | Deals 16 accounts from your ideal customer profile (3 to 5 per segment x situation), each with a committee inside; a sub-agent holds four purchase meetings and files buy / pilot / pass, annual value, sales cycle, who blocked and the price it would accept for each. |
 | `/b2b-pricing` | Pricing Strategist | Turns the committees' price answers into an acceptance curve and a band, sets it against competitors and the CFO's floor, prices payment terms and tiers, and picks what to test. |
 | `/b2b-offer` | Offer Architect | Builds the offer each committee seat can say yes to (paid pilot, certificate pack, terms, SLA, references, guarantee), scores it on the value equation and the whole product, re-tests it on the panel. |
 | `/b2b-cfo` | CFO | Unit economics for deal, distribution or manufacturing: contribution, margin at plan, break-even, working capital, CAC, LTV, payback, year 1 month by month, cash needed, what-ifs incl. slower-paying customers. |
@@ -89,8 +89,30 @@ plan, 45-day customer terms and 75 days of stock tie up $408,510 of working
 capital, five times the startup spend. The founder needs about $436,000, not
 $82,000. That is the B2B story, and it is why this pack exists.
 
-Run `/b2b-committee --quick` (12 accounts) on an idea you are only thinking
-about to find out whether you should keep thinking about it.
+Run `/b2b-committee --quick` (8 accounts, 2 sub-agent calls) on an idea you are
+only thinking about to find out whether you should keep thinking about it.
+
+## Built for a personal Claude plan
+
+The consumer version spends 100 sub-agent calls on one panel. This pack is sized
+so that the whole pipeline runs on a Pro plan in one sitting:
+
+| step | sub-agent calls | model | rough tokens |
+| --- | ---: | --- | ---: |
+| `/b2b-board` | 3 | sonnet | 60–100k |
+| `/b2b-committee --quick` | 2 | sonnet | 50–80k |
+| `/b2b-committee` (16 accounts) | 4 | sonnet | 100–160k |
+| `/b2b-committee --full` (40) | 10 | sonnet | 250–400k |
+| the other eight skills | 0 | your session | a normal conversation each |
+
+Three things make it light. Accounts are dealt 3 to 5 per segment x situation
+instead of a flat 100, because objections in a buying committee saturate after
+about fifteen companies. Four accounts share one brief, so the pitch and the
+committee are sent once, not four times (`--batch 1` gives every account its
+own sub-agent when you have the budget). And the sub-agents run on the cheaper
+model, since a committee memo does not need the largest one. With no Agent tool
+at all (plain chat), every skill still runs; the committee and the board are
+then played in the conversation and say so.
 
 ## The tools
 
@@ -98,7 +120,8 @@ Four of them, all standard-library Python. None touch the network.
 
 ```bash
 python3 skills/b2b-cfo/b2b_economics.py b2b/numbers.json --out b2b/cfo.md          # margins, working capital, CAC/LTV, year 1
-python3 skills/b2b-committee/committee.py init --customer b2b/customer.json --pitch b2b/pitch.md --n 40
+python3 skills/b2b-committee/committee.py init --customer b2b/customer.json --pitch b2b/pitch.md --n 16
+python3 skills/b2b-committee/committee.py prompts --batch 4                                      # 4 briefs, 4 accounts each
 python3 skills/b2b-pricing/pricing.py b2b/committee/answers --price 850 --floor 780 --competitors b2b/competitors.json
 python3 skills/b2b-plan/compile.py --dir b2b                                          # the plan and its verdict
 ```
@@ -111,9 +134,10 @@ for ad-hoc ones). Every number traces to an input; a missing field is an error,
 never a guess.
 
 **`committee.py`** deals account cards from your ideal customer profile (same
-seed, same accounts), writes one brief per account with the whole committee in
-it, checks the answers and tallies them by segment, situation, spend band and
-blocking seat. It never answers for an account.
+seed, same accounts), writes briefs with the whole committee in them (one
+account per brief, or several with `--batch`), checks the answers and tallies
+them by segment, situation, spend band and blocking seat. It never answers for
+an account.
 
 **`pricing.py`** reads three price answers per account (from the panel, or a
 CSV from real quotes and lost deals) and reports the fair and walk-away
